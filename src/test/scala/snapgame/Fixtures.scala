@@ -1,0 +1,5 @@
+package snapgame
+
+object Fixtures {
+
+}
