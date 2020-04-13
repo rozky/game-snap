@@ -5,6 +5,9 @@ case class DeckCount private (count: Long) {
 }
 
 object DeckCount {
+  val ONE = DeckCount(1)
+  val TWO = DeckCount(2)
+
   def fromLong(count: Long): Option[DeckCount] = {
     if (count > 0) {
       Some(DeckCount(count))

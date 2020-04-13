@@ -22,8 +22,8 @@ object Deck {
   }
 
   val takeCard: IndexedState[NonEmptyDeck, Deck, Card] = IndexedState {
-    case _@NonEmptyDeck(NonEmptyList(head, Nil), _) =>
-      (EmptyDeck, head.card)
+    case _@NonEmptyDeck(NonEmptyList(CardCounts(card, 1), Nil), _) =>
+      (EmptyDeck, card)
 
     case deck@NonEmptyDeck(cardCounts, seed) =>
       val nextSlotIdx = seed.current % deck.cardCount

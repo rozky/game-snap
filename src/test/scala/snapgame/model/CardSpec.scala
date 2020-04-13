@@ -12,7 +12,7 @@ class CardSpec extends BaseSpec {
     Card.CARDS should have size(52)
   }
 
-  "getCard" should "return card by for invalid id" in {
+  "getCard" should "return card by for a valid id" in {
     List.range(0, 52).foreach { cardId =>
       fromInt(cardId) should be(Some(Card(cardId)))
     }

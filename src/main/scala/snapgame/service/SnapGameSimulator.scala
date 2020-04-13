@@ -1,15 +1,14 @@
 package snapgame.service
 
-import cats.data.NonEmptyList
 import cats.implicits._
 import snapgame.model.SnapGame.{CompletedGame, GameWithSnap, GameWithoutSnap, newGame}
-import snapgame.model.{DeckCount, GameStyle, PlayerCount, Seed, SnapGame}
+import snapgame.model._
 
 case class SnapGameSimulator(roundWinnerDecider: RoundWinnerDecider) {
 
-  def simulate(playerCount: PlayerCount, deckCount: DeckCount, style: GameStyle): NonEmptyList[Long] = {
+  def simulate(playerCount: PlayerCount, deckCount: DeckCount, style: GameStyle, seed: Seed): Score = {
     val result: Either[CompletedGame, SnapGame] = Stream.continually(0)
-      .foldLeftM(newGame(playerCount, deckCount, style, Seed.randomized()).asInstanceOf[SnapGame]) {
+      .foldLeftM(newGame(playerCount, deckCount, style, seed).asInstanceOf[SnapGame]) {
         case (game: CompletedGame, _) =>
           Either.left(game)
 
@@ -22,7 +21,7 @@ case class SnapGameSimulator(roundWinnerDecider: RoundWinnerDecider) {
       }
 
     result match {
-      case Left(CompletedGame(score)) => score.winners
+      case Left(CompletedGame(score)) => score
       case _ => throw new IllegalStateException("the game is not over")
     }
   }

@@ -3,7 +3,7 @@ package snapgame.model
 import cats.data._
 import cats.implicits._
 import snapgame.BaseSpec
-import snapgame.model.Card.fromIntUnsafe
+import snapgame.model.Card.{CARD_0, fromIntUnsafe}
 import snapgame.model.Deck.{EmptyDeck, NonEmptyDeck}
 
 class DeckSpec extends BaseSpec {
@@ -11,7 +11,7 @@ class DeckSpec extends BaseSpec {
   "newDeck" should "should initialize deck correctly" in {
 
     // when
-    val deck = Deck.newDeck(DeckCount(1), Seed.fixed(1L))
+    val deck = Deck.newDeck(DeckCount.ONE, Seed.fixed(1L))
 
     // then
     deck.cardCounts.toList should be(Card.CARDS.map(CardCounts(_, 1)))
@@ -20,7 +20,7 @@ class DeckSpec extends BaseSpec {
   }
 
   "takeCard" should "take 1 card from the deck containing 1 set of cards" in {
-    val initDeck = Deck.newDeck(DeckCount(1), Seed.randomized(1L))
+    val initDeck = Deck.newDeck(DeckCount.ONE, Seed.randomized(1L))
 
     // when
     val program = for {
@@ -71,7 +71,7 @@ class DeckSpec extends BaseSpec {
   }
 
   it should "take card from the deck" in {
-    val deck = Deck.newDeck(DeckCount(1), Seed.fixed(1L, 50L, 5L))
+    val deck = Deck.newDeck(DeckCount.ONE, Seed.fixed(1L, 50L, 5L))
 
     // when
     val program = for {
@@ -99,7 +99,7 @@ class DeckSpec extends BaseSpec {
   }
 
   it should "take all cards from the deck" in {
-    val deck = Deck.newDeck(DeckCount(1), Seed.fixed(0L))
+    val deck = Deck.newDeck(DeckCount.ONE, Seed.ascendingOrder())
 
     // when
     type Agg = (Deck, List[Card])
@@ -114,10 +114,32 @@ class DeckSpec extends BaseSpec {
 
     // then
     result.left.value._1 should be(EmptyDeck)
+
+    // and
     result.left.value._2 should have size (Card.NUMBER_OF_CARDS)
     result.left.value._2.zipWithIndex.foreach { case (card, idx) =>
       card should be(Card.fromIntUnsafe(idx))
     }
+  }
+
+  it should "take 1 card from the deck with 2 cards of same type" in {
+    val initDeck = NonEmptyDeck(NonEmptyList.of(CardCounts(CARD_0, 2)), Seed.ascendingOrder())
+
+    // when
+    val program = for {
+      card <- takeCardUnsafe
+    } yield card
+
+    val (lastDeck, card) = program.run(initDeck).value
+
+    // then correct card have been taken from the deck
+    card should be(CARD_0)
+
+    // and the taken card count is decremented by 1
+    findCardCount(card, lastDeck).value should be(CardCounts(CARD_0, 1))
+
+    // and deck is not empty yet
+    lastDeck should be (a[NonEmptyDeck])
   }
 
   private val takeCardUnsafe: IndexedState[NonEmptyDeck, NonEmptyDeck, Card] = {

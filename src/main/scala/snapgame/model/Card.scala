@@ -13,6 +13,8 @@ object Card {
 
   val CARS_MAP: Map[Int, Card] = CARDS.map(card => (card.id, card)).toMap
 
+  val CARD_0 = CARDS(0)
+
   def fromInt(id: Int): Option[Card] = {
     CARS_MAP.get(id)
   }

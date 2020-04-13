@@ -1,8 +1,7 @@
 package snapgame
 
-import cats.data.NonEmptyList
-import snapgame.model.{DeckCount, GameStyle, PlayerCount}
-import snapgame.service.{SnapGameSimulator, RandomRoundWinnerDecider}
+import snapgame.model._
+import snapgame.service.{RandomRoundWinnerDecider, SnapGameSimulator}
 
 import scala.io.StdIn
 
@@ -12,9 +11,9 @@ object SnapGameApp extends App {
   val style = askStyle()
 
   private val simulator = SnapGameSimulator(RandomRoundWinnerDecider)
-  private val winners: NonEmptyList[Long] = simulator.simulate(playerCount, deckCount, GameStyle.BothMatch)
+  private val finalScore: Score = simulator.simulate(playerCount, deckCount, style, Seed.randomized())
 
-  println(s"Winners are: $winners")
+  println(s"Winners are players with numbers: [ ${finalScore.winners.toList.mkString(", ")} ]")
 
   private def askDeckCount(): DeckCount = {
     var count: Option[DeckCount] = None
